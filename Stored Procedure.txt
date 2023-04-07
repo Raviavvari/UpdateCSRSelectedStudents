@@ -1,0 +1,22 @@
+CREATE proc UpdateCSRSelectedStudent   
+(@tblStudentMobile udt_StudentMobile readonly)  
+as  
+begin  
+ declare @tblMobile table(mobile varchar(40))  
+ insert into @tblMobile select * from @tblStudentMobile   
+ declare @tblNotfound table(mobileNumber varchar(40))  
+ while((select count(*) from @tblMobile) > 0)  
+ begin  
+  declare @Contact_No varchar(40) = (select top 1* from @tblMobile)  
+  if(@Contact_No in (select Contact_No from CSR_Marketing_Student))  
+  begin  
+   update CSR_Marketing_Student set IsSelected=1 where Contact_No = @Contact_No  
+  end  
+  else  
+  begin  
+   insert into @tblNotfound values(@Contact_No)  
+  end  
+  delete @tblMobile where mobile = @Contact_No  
+ end  
+ select * from @tblNotfound  
+end
